@@ -8,17 +8,20 @@
 
 class Graphics
 {
-public:
+  public:
     // constructor / desctructor
 
     // getters / setters
     void setBgFilename(std::string filename) { _bgFilename = filename; }
-    void setTrafficObjects(std::vector<std::shared_ptr<TrafficObject>> &trafficObjects) { _trafficObjects = trafficObjects; };
+    void setTrafficObjects(std::vector<std::shared_ptr<TrafficObject>>& trafficObjects)
+    {
+        _trafficObjects = trafficObjects;
+    };
 
     // typical behaviour methods
     void simulate();
 
-private:
+  private:
     // typical behaviour methods
     void loadBackgroundImg();
     void drawTrafficObjects();

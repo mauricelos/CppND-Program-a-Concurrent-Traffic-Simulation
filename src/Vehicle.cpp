@@ -1,7 +1,8 @@
 #include <iostream>
 #include <random>
-#include "Street.h"
+
 #include "Intersection.h"
+#include "Street.h"
 #include "Vehicle.h"
 
 Vehicle::Vehicle()
@@ -9,9 +10,8 @@ Vehicle::Vehicle()
     _currStreet = nullptr;
     _posStreet = 0.0;
     _type = ObjectType::objectVehicle;
-    _speed = 400; // m/s
+    _speed = 400;  // m/s
 }
-
 
 void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination)
 {
@@ -38,7 +38,7 @@ void Vehicle::drive()
 
     // initalize variables
     bool hasEnteredIntersection = false;
-    double cycleDuration = 1; // duration of a single simulation cycle in ms
+    double cycleDuration = 1;  // duration of a single simulation cycle in ms
     std::chrono::time_point<std::chrono::system_clock> lastUpdate;
 
     // init stop watch
@@ -49,7 +49,9 @@ void Vehicle::drive()
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         // compute time difference to stop watch
-        long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate).count();
+        long timeSinceLastUpdate =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastUpdate)
+                .count();
         if (timeSinceLastUpdate >= cycleDuration)
         {
             // update position with a constant velocity motion model
@@ -61,7 +63,8 @@ void Vehicle::drive()
             // compute current pixel position on street based on driving direction
             std::shared_ptr<Intersection> i1, i2;
             i2 = _currDestination;
-            i1 = i2->getID() == _currStreet->getInIntersection()->getID() ? _currStreet->getOutIntersection() : _currStreet->getInIntersection();
+            i1 = i2->getID() == _currStreet->getInIntersection()->getID() ? _currStreet->getOutIntersection()
+                                                                          : _currStreet->getInIntersection();
 
             double x1, y1, x2, y2, xv, yv, dx, dy, l;
             i1->getPosition(x1, y1);
@@ -69,7 +72,7 @@ void Vehicle::drive()
             dx = x2 - x1;
             dy = y2 - y1;
             l = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (x1 - x2));
-            xv = x1 + completion * dx; // new position based on line equation in parameter form
+            xv = x1 + completion * dx;  // new position based on line equation in parameter form
             yv = y1 + completion * dy;
             this->setPosition(xv, yv);
 
@@ -77,7 +80,8 @@ void Vehicle::drive()
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
                 // request entry to the current intersection (using async)
-                auto ftrEntryGranted = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
+                auto ftrEntryGranted =
+                    std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
 
                 // wait until entry has been granted
                 ftrEntryGranted.get();
@@ -106,9 +110,12 @@ void Vehicle::drive()
                     // this street is a dead-end, so drive back the same way
                     nextStreet = _currStreet;
                 }
-                
+
                 // pick the one intersection at which the vehicle is currently not
-                std::shared_ptr<Intersection> nextIntersection = nextStreet->getInIntersection()->getID() == _currDestination->getID() ? nextStreet->getOutIntersection() : nextStreet->getInIntersection(); 
+                std::shared_ptr<Intersection> nextIntersection =
+                    nextStreet->getInIntersection()->getID() == _currDestination->getID()
+                        ? nextStreet->getOutIntersection()
+                        : nextStreet->getInIntersection();
 
                 // send signal to intersection that vehicle has left the intersection
                 _currDestination->vehicleHasLeft(get_shared_this());
@@ -125,5 +132,5 @@ void Vehicle::drive()
             // reset stop watch for next cycle
             lastUpdate = std::chrono::system_clock::now();
         }
-    } // eof simulation loop
+    }  // eof simulation loop
 }
